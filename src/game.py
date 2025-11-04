@@ -9,6 +9,7 @@ import os
 import pygame
 from typing import Optional, Dict, Any
 from src.utils.data_loader import load_config, DataLoadError
+from src.states.battle_state import BattleScene
 
 
 # Constants
@@ -81,6 +82,13 @@ class Game:
         
         # Ensure required directories exist
         self._ensure_directories()
+        
+        # Initialize battle scene
+        try:
+            self.battle_scene: Optional[BattleScene] = BattleScene(self.screen, self.config)
+        except Exception as e:
+            print(f"Warning: Failed to initialize battle scene: {e}")
+            self.battle_scene = None
     
     def _get_default_config(self) -> Dict[str, Any]:
         """Get default configuration.
@@ -150,6 +158,8 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
+                elif self.battle_scene is not None:
+                    self.battle_scene.handle_input(event)
     
     def _update(self, dt: float) -> None:
         """Update game state.
@@ -157,13 +167,20 @@ class Game:
         Args:
             dt: Delta time in seconds since last update.
         """
-        # Game state updates will go here
-        pass
+        if self.battle_scene is not None:
+            if not self.battle_scene.update(dt):
+                # Battle ended
+                print("Battle ended, exiting...")
+                self.running = False
     
     def _render(self) -> None:
         """Render the game."""
         # Clear screen with black background
         self.screen.fill((0, 0, 0))
+        
+        # Render battle scene
+        if self.battle_scene is not None:
+            self.battle_scene.render()
         
         # Render FPS counter if enabled
         if self.show_fps:

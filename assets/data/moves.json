@@ -1,0 +1,54 @@
+{
+  "moves": [
+    {
+      "id": "jump",
+      "name": "Jump",
+      "type": "physical",
+      "mp_cost": 0,
+      "base_power": 20,
+      "timing_window": 0.3,
+      "timing_bonus": 1.5,
+      "description": "Jump on enemy - press at the right moment for bonus damage"
+    },
+    {
+      "id": "hammer",
+      "name": "Hammer",
+      "type": "physical",
+      "mp_cost": 0,
+      "base_power": 25,
+      "timing_window": 0.25,
+      "timing_bonus": 1.8,
+      "description": "Hammer strike - tighter timing window for bigger bonus"
+    },
+    {
+      "id": "fire_flower",
+      "name": "Fire Flower",
+      "type": "magic",
+      "mp_cost": 10,
+      "base_power": 30,
+      "timing_window": 0.35,
+      "timing_bonus": 1.4,
+      "description": "Fire magic attack - press at the right moment"
+    },
+    {
+      "id": "thunder",
+      "name": "Thunder",
+      "type": "magic",
+      "mp_cost": 15,
+      "base_power": 40,
+      "timing_window": 0.2,
+      "timing_bonus": 2.0,
+      "description": "Lightning attack - difficult timing, high reward"
+    },
+    {
+      "id": "defend",
+      "name": "Defend",
+      "type": "defend",
+      "mp_cost": 0,
+      "base_power": 0,
+      "timing_window": 0.0,
+      "timing_bonus": 1.0,
+      "description": "Reduce incoming damage"
+    }
+  ]
+}

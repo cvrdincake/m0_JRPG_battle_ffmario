@@ -17,6 +17,9 @@ BAR_BACKGROUND_COLOR = (50, 50, 50)
 BAR_BORDER_COLOR = (255, 255, 255)
 TEXT_COLOR = (255, 255, 255)
 SHADOW_COLOR = (0, 0, 0)
+STAT_TEXT_OFFSET_X = 100  # X offset for stat text from right edge
+STAT_TEXT_OFFSET_Y_HP = 24  # Y offset for HP text
+STAT_TEXT_OFFSET_Y_MP = 44  # Y offset for MP text
 
 
 class UIBar:
@@ -153,7 +156,8 @@ class CharacterInfoPanel:
             try:
                 hp_surface = self.font.render(hp_text, True, TEXT_COLOR)
                 if hp_surface is not None:
-                    surface.blit(hp_surface, (self.x + self.width - 100, self.y + 24))
+                    surface.blit(hp_surface, (self.x + self.width - STAT_TEXT_OFFSET_X, 
+                                             self.y + STAT_TEXT_OFFSET_Y_HP))
             except pygame.error:
                 pass
         
@@ -166,7 +170,8 @@ class CharacterInfoPanel:
                 try:
                     mp_surface = self.font.render(mp_text, True, TEXT_COLOR)
                     if mp_surface is not None:
-                        surface.blit(mp_surface, (self.x + self.width - 100, self.y + 44))
+                        surface.blit(mp_surface, (self.x + self.width - STAT_TEXT_OFFSET_X, 
+                                                 self.y + STAT_TEXT_OFFSET_Y_MP))
                 except pygame.error:
                     pass
         

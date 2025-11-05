@@ -100,6 +100,16 @@ class Party:
             return True
         return len(self.get_alive_members()) == 0
     
+    def get_random_alive_member(self) -> Optional[Hero]:
+        """Get a random alive party member.
+        
+        Returns:
+            Random alive Hero, or None if all dead.
+        """
+        import random
+        alive = self.get_alive_members()
+        return random.choice(alive) if alive else None
+    
     def is_full(self) -> bool:
         """Check if party is at maximum size.
         

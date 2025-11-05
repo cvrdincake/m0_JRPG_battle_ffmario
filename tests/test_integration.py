@@ -76,13 +76,13 @@ def test_complete_battle_flow():
     
     # Check if enemy was defeated
     if target.current_hp <= 0:
-        print(f"✓ Enemy defeated! ({target.current_hp}/{target.max_hp} HP)")
+        print(f"✓ Enemy defeated! ({target.current_hp}/{target.stats.max_hp} HP)")
         damage_dealt = initial_hp
     else:
         # Verify damage was dealt
         assert target.current_hp < initial_hp, "Target should have taken damage"
         damage_dealt = initial_hp - target.current_hp
-        print(f"✓ Dealt {damage_dealt} damage ({target.current_hp}/{target.max_hp} HP remaining)")
+        print(f"✓ Dealt {damage_dealt} damage ({target.current_hp}/{target.stats.max_hp} HP remaining)")
         
         # Verify turn completed
         assert battle.state == BattleState.ACTIVE or battle.state == BattleState.VICTORY, "Should return to active state or victory"

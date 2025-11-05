@@ -5,6 +5,7 @@ for heroes and enemies in the battle system.
 """
 
 from typing import Dict, Any, Optional
+from src.entities.stats import Stats
 
 
 # Constants
@@ -16,16 +17,15 @@ DEFENDING_DAMAGE_MULTIPLIER = 0.5
 class Character:
     """Base class for all battle characters (heroes and enemies).
     
+    Separates immutable base stats (Stats dataclass) from mutable current state
+    (current_hp, current_mp, etc.) to prevent accidental stat modification bugs.
+    
     Attributes:
         id: Unique identifier for the character.
         name: Display name of the character.
-        max_hp: Maximum health points.
-        current_hp: Current health points.
-        max_mp: Maximum magic points (0 for enemies).
-        current_mp: Current magic points.
-        attack: Attack stat for damage calculation.
-        defense: Defense stat for damage reduction.
-        speed: Speed stat (affects turn order).
+        stats: Immutable base statistics (max_hp, attack, defense, etc.).
+        current_hp: Current health points (0 to stats.max_hp).
+        current_mp: Current magic points (0 to stats.max_mp).
         atb_speed: Rate at which ATB gauge fills.
         atb_value: Current ATB gauge value (0-100).
         is_defending: Whether character is in defend state.
@@ -48,13 +48,20 @@ class Character:
         
         self.id: str = data['id']
         self.name: str = data['name']
-        self.max_hp: int = max(MIN_STAT_VALUE, data['max_hp'])
-        self.current_hp: int = self.max_hp
-        self.max_mp: int = max(MIN_STAT_VALUE, data.get('max_mp', 0))
-        self.current_mp: int = self.max_mp
-        self.attack: int = max(MIN_STAT_VALUE, data['attack'])
-        self.defense: int = max(MIN_STAT_VALUE, data['defense'])
-        self.speed: int = max(MIN_STAT_VALUE, data['speed'])
+        
+        # Create immutable stats object
+        self.stats: Stats = Stats(
+            max_hp=max(MIN_STAT_VALUE, data['max_hp']),
+            max_mp=max(MIN_STAT_VALUE, data.get('max_mp', 0)),
+            attack=max(MIN_STAT_VALUE, data['attack']),
+            defense=max(MIN_STAT_VALUE, data['defense']),
+            magic=max(MIN_STAT_VALUE, data.get('magic', 0)),
+            speed=max(MIN_STAT_VALUE, data['speed'])
+        )
+        
+        # Mutable current state
+        self.current_hp: int = self.stats.max_hp
+        self.current_mp: int = self.stats.max_mp
         self.atb_speed: int = max(MIN_STAT_VALUE, data['atb_speed'])
         self.atb_value: float = 0.0
         self.is_defending: bool = False
@@ -115,7 +122,7 @@ class Character:
             return 0
         
         old_hp = self.current_hp
-        self.current_hp = min(self.max_hp, self.current_hp + max(MIN_STAT_VALUE, amount))
+        self.current_hp = min(self.stats.max_hp, self.current_hp + max(MIN_STAT_VALUE, amount))
         return self.current_hp - old_hp
     
     def use_mp(self, amount: int) -> bool:
@@ -142,7 +149,7 @@ class Character:
             Actual MP restored after clamping.
         """
         old_mp = self.current_mp
-        self.current_mp = min(self.max_mp, self.current_mp + max(MIN_STAT_VALUE, amount))
+        self.current_mp = min(self.stats.max_mp, self.current_mp + max(MIN_STAT_VALUE, amount))
         return self.current_mp - old_mp
     
     def set_defending(self, defending: bool) -> None:
@@ -159,9 +166,9 @@ class Character:
         Returns:
             HP percentage (0.0 to 1.0).
         """
-        if self.max_hp <= MIN_STAT_VALUE:
+        if self.stats.max_hp <= MIN_STAT_VALUE:
             return 0.0
-        return self.current_hp / self.max_hp
+        return self.current_hp / self.stats.max_hp
     
     def get_mp_percentage(self) -> float:
         """Get current MP as a percentage of max MP.
@@ -169,9 +176,9 @@ class Character:
         Returns:
             MP percentage (0.0 to 1.0).
         """
-        if self.max_mp <= MIN_STAT_VALUE:
+        if self.stats.max_mp <= MIN_STAT_VALUE:
             return 0.0
-        return self.current_mp / self.max_mp
+        return self.current_mp / self.stats.max_mp
     
     def get_atb_percentage(self) -> float:
         """Get current ATB value as a percentage.

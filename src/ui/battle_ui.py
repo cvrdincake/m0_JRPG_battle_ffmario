@@ -152,7 +152,7 @@ class CharacterInfoPanel:
         
         # Render HP text
         if self.font is not None:
-            hp_text = f"HP: {character.current_hp}/{character.max_hp}"
+            hp_text = f"HP: {character.current_hp}/{character.stats.max_hp}"
             try:
                 hp_surface = self.font.render(hp_text, True, TEXT_COLOR)
                 if hp_surface is not None:
@@ -162,11 +162,11 @@ class CharacterInfoPanel:
                 pass
         
         # Render MP bar (if character has MP)
-        if character.max_mp > 0:
+        if character.stats.max_mp > 0:
             self.mp_bar.render(surface, character.get_mp_percentage())
             
             if self.font is not None:
-                mp_text = f"MP: {character.current_mp}/{character.max_mp}"
+                mp_text = f"MP: {character.current_mp}/{character.stats.max_mp}"
                 try:
                     mp_surface = self.font.render(mp_text, True, TEXT_COLOR)
                     if mp_surface is not None:

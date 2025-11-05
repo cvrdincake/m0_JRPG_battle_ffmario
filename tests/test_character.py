@@ -23,13 +23,13 @@ class TestCharacter:
         
         assert char.id == "test1"
         assert char.name == "TestChar"
-        assert char.max_hp == 100
+        assert char.stats.max_hp == 100
         assert char.current_hp == 100
-        assert char.max_mp == 50
+        assert char.stats.max_mp == 50
         assert char.current_mp == 50
-        assert char.attack == 15
-        assert char.defense == 10
-        assert char.speed == 12
+        assert char.stats.attack == 15
+        assert char.stats.defense == 10
+        assert char.stats.speed == 12
         assert char.atb_speed == 10
         assert char.atb_value == 0.0
         assert char.is_alive is True

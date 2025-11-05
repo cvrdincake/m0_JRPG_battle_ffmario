@@ -182,8 +182,8 @@ class BattleSystem:
                 timing_result, self.selected_move.timing_bonus
             )
             damage = self.selected_move.calculate_damage(
-                self.active_character.attack,
-                self.selected_target.defense,
+                self.active_character.stats.attack,
+                self.selected_target.stats.defense,
                 timing_multiplier
             )
             self.selected_target.take_damage(damage)

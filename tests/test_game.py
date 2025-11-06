@@ -17,6 +17,10 @@ def mock_pygame():
         mock_pg.display.set_mode.return_value = Mock()
         mock_pg.display.set_caption.return_value = None
         mock_pg.time.Clock.return_value = Mock()
+        # Set pygame constants from real pygame module
+        mock_pg.QUIT = pygame.QUIT
+        mock_pg.KEYDOWN = pygame.KEYDOWN
+        mock_pg.K_ESCAPE = pygame.K_ESCAPE
         yield mock_pg
 
 

@@ -1,0 +1,18 @@
+{
+  "display": {
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "title": "JRPG Battle Prototype"
+  },
+  "debug": {
+    "show_fps": true,
+    "show_hitboxes": false,
+    "god_mode": false
+  },
+  "paths": {
+    "sprites": "assets/sprites",
+    "animations": "assets/animations",
+    "data": "assets/data"
+  }
+}

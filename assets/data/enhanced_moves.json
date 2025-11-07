@@ -1,0 +1,110 @@
+{
+  "moves": [
+    {
+      "id": "punch",
+      "name": "Punch",
+      "description": "A basic punch attack",
+      "base_power": 20,
+      "mp_cost": 0,
+      "target_type": "single_enemy",
+      "timing_type": "simple",
+      "is_offensive": true
+    },
+    {
+      "id": "jump",
+      "name": "Jump",
+      "description": "Jump on enemy with timing",
+      "base_power": 30,
+      "mp_cost": 0,
+      "target_type": "single_enemy",
+      "timing_type": "timed_press",
+      "is_offensive": true,
+      "timing_window": {
+        "perfect_min": 450,
+        "perfect_max": 550,
+        "good_min": 350,
+        "good_max": 650,
+        "early_min": 200,
+        "early_max": 800
+      }
+    },
+    {
+      "id": "hammer_combo",
+      "name": "Hammer Combo",
+      "description": "Multiple hammer strikes in rhythm",
+      "base_power": 45,
+      "mp_cost": 5,
+      "target_type": "single_enemy",
+      "timing_type": "sequence",
+      "is_offensive": true,
+      "sequence_buttons": ["A", "B", "A", "B"],
+      "timing_window": {
+        "perfect_min": 475,
+        "perfect_max": 525,
+        "good_min": 400,
+        "good_max": 600,
+        "early_min": 300,
+        "early_max": 700
+      }
+    },
+    {
+      "id": "fire_blast",
+      "name": "Fire Blast",
+      "description": "Hold to charge, release at peak",
+      "base_power": 60,
+      "mp_cost": 10,
+      "target_type": "single_enemy",
+      "timing_type": "hold_release",
+      "is_offensive": true,
+      "hold_duration_ms": 1500,
+      "timing_window": {
+        "perfect_min": 480,
+        "perfect_max": 520,
+        "good_min": 420,
+        "good_max": 580,
+        "early_min": 350,
+        "early_max": 650
+      }
+    },
+    {
+      "id": "quake",
+      "name": "Quake",
+      "description": "Earth attack hitting all enemies",
+      "base_power": 35,
+      "mp_cost": 15,
+      "target_type": "all_enemies",
+      "timing_type": "simple",
+      "is_offensive": true
+    },
+    {
+      "id": "heal",
+      "name": "Heal",
+      "description": "Restore HP to an ally",
+      "base_power": 30,
+      "mp_cost": 8,
+      "target_type": "single_ally",
+      "timing_type": "simple",
+      "is_offensive": false
+    },
+    {
+      "id": "group_heal",
+      "name": "Group Heal",
+      "description": "Restore HP to all allies",
+      "base_power": 20,
+      "mp_cost": 15,
+      "target_type": "all_allies",
+      "timing_type": "simple",
+      "is_offensive": false
+    },
+    {
+      "id": "defend",
+      "name": "Defend",
+      "description": "Take defensive stance",
+      "base_power": 0,
+      "mp_cost": 0,
+      "target_type": "self",
+      "timing_type": "simple",
+      "is_offensive": false
+    }
+  ]
+}

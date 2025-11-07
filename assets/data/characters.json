@@ -1,0 +1,24 @@
+{
+  "heroes": [
+    {
+      "id": "hero1",
+      "name": "Mario",
+      "max_hp": 100,
+      "max_mp": 50,
+      "attack": 15,
+      "defense": 10,
+      "speed": 12,
+      "atb_speed": 10
+    },
+    {
+      "id": "hero2",
+      "name": "Luigi",
+      "max_hp": 90,
+      "max_mp": 60,
+      "attack": 12,
+      "defense": 8,
+      "speed": 14,
+      "atb_speed": 12
+    }
+  ]
+}

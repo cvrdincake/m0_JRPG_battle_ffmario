@@ -1,0 +1,37 @@
+{
+  "enemies": [
+    {
+      "id": "goomba",
+      "name": "Goomba",
+      "max_hp": 30,
+      "attack": 8,
+      "defense": 5,
+      "speed": 8,
+      "atb_speed": 8,
+      "exp_reward": 10,
+      "gold_reward": 5
+    },
+    {
+      "id": "koopa",
+      "name": "Koopa Troopa",
+      "max_hp": 45,
+      "attack": 10,
+      "defense": 12,
+      "speed": 6,
+      "atb_speed": 7,
+      "exp_reward": 15,
+      "gold_reward": 8
+    },
+    {
+      "id": "bowser",
+      "name": "Bowser",
+      "max_hp": 200,
+      "attack": 25,
+      "defense": 20,
+      "speed": 10,
+      "atb_speed": 9,
+      "exp_reward": 100,
+      "gold_reward": 50
+    }
+  ]
+}

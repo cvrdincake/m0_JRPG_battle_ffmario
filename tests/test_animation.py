@@ -281,14 +281,15 @@ def test_controller_add_animation(sample_frames):
 
 
 def test_controller_add_duplicate_name(sample_frames):
-    """Test that adding duplicate name raises error."""
+    """Test that adding duplicate name overwrites (no longer raises error)."""
     controller = AnimationController()
     anim1 = Animation(sample_frames, loop=True)
     anim2 = Animation(sample_frames, loop=True)
     
     controller.add_animation("test", anim1)
-    with pytest.raises(ValueError, match="Animation 'test' already exists"):
-        controller.add_animation("test", anim2)
+    # Second add should overwrite
+    controller.add_animation("test", anim2)
+    assert controller.get_animation("test") == anim2
 
 
 def test_controller_remove_animation(sample_frames):
@@ -388,3 +389,206 @@ def test_controller_memory_efficiency(sample_frames):
     assert anim1.frames is sample_frames
     assert anim2.frames is sample_frames
     assert anim1.frames is anim2.frames
+
+
+# AnimationController Tests - Single Animation Mode
+
+def test_controller_play(sample_frames):
+    """Test playing named animation."""
+    controller = AnimationController()
+    anim = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("test", anim)
+    result = controller.play("test")
+    
+    assert result is True
+    assert controller.current_animation_name == "test"
+    assert anim.paused is False
+
+
+def test_controller_play_nonexistent():
+    """Test playing nonexistent animation returns False."""
+    controller = AnimationController()
+    result = controller.play("nonexistent")
+    assert result is False
+    assert controller.current_animation_name is None
+
+
+def test_controller_play_with_reset(sample_frames):
+    """Test playing animation with reset."""
+    controller = AnimationController()
+    anim = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("test", anim)
+    
+    # Advance animation
+    controller.play("test")
+    controller.update(0.15)
+    assert anim.current_frame_index == 1
+    
+    # Play with reset
+    controller.play("test", reset=True)
+    assert anim.current_frame_index == 0
+
+
+def test_controller_play_without_reset(sample_frames):
+    """Test playing animation without reset continues from current position."""
+    controller = AnimationController()
+    anim = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("test", anim)
+    
+    # Advance animation
+    controller.play("test")
+    controller.update(0.15)
+    frame_before = anim.current_frame_index
+    
+    # Play without reset
+    controller.play("test", reset=False)
+    assert anim.current_frame_index == frame_before
+
+
+def test_controller_stop():
+    """Test stopping current animation."""
+    controller = AnimationController()
+    controller.current_animation_name = "test"
+    
+    controller.stop()
+    assert controller.current_animation_name is None
+
+
+def test_controller_update_single_mode(sample_frames):
+    """Test update in single-animation mode."""
+    controller = AnimationController()
+    anim1 = Animation(sample_frames, loop=True)
+    anim2 = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("anim1", anim1)
+    controller.add_animation("anim2", anim2)
+    
+    # Play only anim1
+    controller.play("anim1")
+    controller.update(0.15)
+    
+    # Only anim1 should advance
+    assert anim1.current_frame_index == 1
+    assert anim2.current_frame_index == 0
+
+
+def test_controller_update_multi_mode(sample_frames):
+    """Test update in multi-animation mode (no current_animation_name)."""
+    controller = AnimationController()
+    anim1 = Animation(sample_frames, loop=True)
+    anim2 = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("anim1", anim1)
+    controller.add_animation("anim2", anim2)
+    
+    # Don't set current_animation_name - stays in multi mode
+    controller.update(0.15)
+    
+    # Both should advance
+    assert anim1.current_frame_index == 1
+    assert anim2.current_frame_index == 1
+
+
+def test_controller_get_current_frame(sample_frames):
+    """Test getting current frame from active animation."""
+    controller = AnimationController()
+    anim = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("test", anim)
+    controller.play("test")
+    
+    frame = controller.get_current_frame()
+    assert frame == sample_frames[0].surface
+
+
+def test_controller_get_current_frame_no_animation():
+    """Test getting current frame when no animation is playing."""
+    controller = AnimationController()
+    frame = controller.get_current_frame()
+    assert frame is None
+
+
+def test_controller_get_current_frame_after_advance(sample_frames):
+    """Test getting current frame after animation advances."""
+    controller = AnimationController()
+    anim = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("test", anim)
+    controller.play("test")
+    controller.update(0.15)
+    
+    frame = controller.get_current_frame()
+    assert frame == sample_frames[1].surface
+
+
+def test_controller_on_animation_complete_callback(sample_frames):
+    """Test on_animation_complete callback is triggered."""
+    controller = AnimationController()
+    anim = Animation(sample_frames, loop=False)
+    
+    callback_triggered = []
+    
+    def callback():
+        callback_triggered.append(True)
+    
+    controller.add_animation("test", anim)
+    controller.on_animation_complete = callback
+    controller.play("test")
+    
+    # Finish the animation
+    controller.update(0.5)
+    
+    assert len(callback_triggered) == 1
+
+
+def test_controller_no_callback_without_setting():
+    """Test that no error occurs when callback not set."""
+    controller = AnimationController()
+    
+    # Create mock surface for test
+    import pygame
+    pygame.init()
+    surface = pygame.Surface((10, 10))
+    
+    frames = [AnimationFrame(surface, 0.1)]
+    anim = Animation(frames, loop=False)
+    
+    controller.add_animation("test", anim)
+    controller.play("test")
+    
+    # Should not error even though on_animation_complete is None
+    controller.update(0.2)
+    
+    pygame.quit()
+
+
+def test_controller_remove_current_animation(sample_frames):
+    """Test removing the currently playing animation."""
+    controller = AnimationController()
+    anim = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("test", anim)
+    controller.play("test")
+    
+    result = controller.remove_animation("test")
+    
+    assert result is True
+    assert controller.current_animation_name is None
+    assert controller.has_animation("test") is False
+
+
+def test_controller_clear_with_current_animation(sample_frames):
+    """Test clearing all animations including current one."""
+    controller = AnimationController()
+    anim = Animation(sample_frames, loop=True)
+    
+    controller.add_animation("test", anim)
+    controller.play("test")
+    
+    controller.clear()
+    
+    assert controller.is_empty() is True
+    assert controller.current_animation_name is None

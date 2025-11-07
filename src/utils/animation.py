@@ -154,33 +154,62 @@ class Animation:
 
 
 class AnimationController:
-    """Manages multiple simultaneous animations.
+    """Manages multiple named animations for an entity.
     
-    This controller allows composing multiple effects (e.g., flash + shake)
-    without duplicating animation data. Each animation instance is updated
-    independently.
+    This controller can operate in two modes:
+    1. Single-animation mode: Play one animation at a time using play()/stop()
+    2. Multi-animation mode: Manage multiple simultaneous animations (legacy behavior)
     
     Attributes:
-        animations: Dictionary of active animations by name.
+        animations: Dictionary of animation_name -> Animation.
+        current_animation_name: Name of currently playing animation (single mode).
+        on_animation_complete: Optional callback when animation finishes (single mode).
     """
     
     def __init__(self):
         """Initialize animation controller."""
         self.animations: dict[str, Animation] = {}
+        self.current_animation_name: Optional[str] = None
+        self.on_animation_complete: Optional[Callable[[], None]] = None
     
     def add_animation(self, name: str, animation: Animation) -> None:
-        """Add animation to controller.
+        """Add named animation.
         
         Args:
-            name: Unique identifier for this animation.
-            animation: Animation instance to add.
-        
-        Raises:
-            ValueError: If animation with this name already exists.
+            name: Animation identifier.
+            animation: Animation instance.
         """
-        if name in self.animations:
-            raise ValueError(f"Animation '{name}' already exists")
         self.animations[name] = animation
+    
+    def play(self, name: str, reset: bool = True) -> bool:
+        """Play named animation.
+        
+        This switches the controller to single-animation mode, where only
+        one animation plays at a time.
+        
+        Args:
+            name: Animation to play.
+            reset: Whether to reset animation if already playing.
+        
+        Returns:
+            True if animation started, False if not found.
+        """
+        if name not in self.animations:
+            return False
+        
+        if self.current_animation_name == name and not reset:
+            return True
+        
+        self.current_animation_name = name
+        if reset:
+            self.animations[name].reset()
+        self.animations[name].resume()
+        
+        return True
+    
+    def stop(self) -> None:
+        """Stop current animation."""
+        self.current_animation_name = None
     
     def remove_animation(self, name: str) -> bool:
         """Remove animation from controller.
@@ -192,25 +221,60 @@ class AnimationController:
             True if animation was removed, False if not found.
         """
         if name in self.animations:
+            # Stop if this was the current animation
+            if self.current_animation_name == name:
+                self.current_animation_name = None
             del self.animations[name]
             return True
         return False
     
     def update(self, dt: float) -> None:
-        """Update all active animations.
+        """Update current animation or all animations.
+        
+        If in single-animation mode (current_animation_name is set), only
+        updates that animation. Otherwise, updates all animations.
         
         Args:
             dt: Delta time in seconds since last update.
         """
-        # Remove finished non-looping animations
-        finished = [name for name, anim in self.animations.items() 
-                   if anim.is_finished()]
-        for name in finished:
-            del self.animations[name]
-        
-        # Update remaining animations
-        for animation in self.animations.values():
+        if self.current_animation_name:
+            # Single-animation mode
+            if self.current_animation_name not in self.animations:
+                self.current_animation_name = None
+                return
+            
+            animation = self.animations[self.current_animation_name]
             animation.update(dt)
+            
+            # Check if finished and trigger callback
+            if animation.finished and self.on_animation_complete:
+                self.on_animation_complete()
+        else:
+            # Multi-animation mode (legacy behavior)
+            # Remove finished non-looping animations
+            finished = [name for name, anim in self.animations.items() 
+                       if anim.is_finished()]
+            for name in finished:
+                del self.animations[name]
+            
+            # Update remaining animations
+            for animation in self.animations.values():
+                animation.update(dt)
+    
+    def get_current_frame(self) -> Optional[pygame.Surface]:
+        """Get current animation frame.
+        
+        Returns:
+            Current frame surface, or None if no animation playing.
+        """
+        if not self.current_animation_name:
+            return None
+        
+        animation = self.animations.get(self.current_animation_name)
+        if not animation:
+            return None
+        
+        return animation.get_current_frame()
     
     def get_animation(self, name: str) -> Optional[Animation]:
         """Get animation by name.
@@ -237,6 +301,7 @@ class AnimationController:
     def clear(self) -> None:
         """Remove all animations."""
         self.animations.clear()
+        self.current_animation_name = None
     
     def is_empty(self) -> bool:
         """Check if controller has no active animations.
